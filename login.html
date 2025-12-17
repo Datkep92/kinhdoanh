@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập hệ thống</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-card">
+            <div class="login-header">
+                <button class="back-btn" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1 id="loginTitle">Đăng nhập</h1>
+            </div>
+            <!-- Thêm nút "Đăng ký HKD" vào login form -->
+<div class="register-link text-center mt-4" id="registerLink">
+    <p>Chưa có tài khoản HKD? 
+        <a href="#" onclick="showRegisterForm()" class="register-link-btn">
+            <i class="fas fa-user-plus"></i> Đăng ký ngay
+        </a>
+    </p>
+</div>
+            <div class="login-type-selector">
+                <button class="type-btn active" onclick="switchLoginType('admin')">
+                    <i class="fas fa-user-shield"></i> Admin
+                </button>
+                <button class="type-btn" onclick="switchLoginType('hkd')">
+                    <i class="fas fa-user-tie"></i> HKD
+                </button>
+            </div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group" id="phoneGroup">
+                    <label for="phone">Số điện thoại:</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="phone" placeholder="Nhập số điện thoại" required>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="hkdNameGroup" style="display: none;">
+                    
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mật khẩu:</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                    </button>
+                </div>
+            </form>
+            
+            <div class="login-info">
+                <p><strong>Thông tin đăng nhập mặc định:</strong></p>
+                <div id="defaultAdminInfo">
+                    <p>Admin: <code>admin / 123123</code></p>
+                </div>
+                <div id="defaultHKDInfo" style="display: none;">
+                    <p>HKD: Sử dụng SĐT và mật khẩu do Admin cấp</p>
+                </div>
+            </div>
+            
+            <div class="login-footer">
+                <p>Phiên bản 1.0 - Hệ thống bán hàng Firebase</p>
+            </div>
+        </div>
+    </div>
+<!-- Trong login.html, thêm vào sau login-form -->
+<div class="register-section" id="registerSection" style="display: none;">
+    <hr>
+    <h5 class="text-center mb-3">Đăng ký HKD mới</h5>
+    
+    <form id="registerForm" class="register-form">
+        <div class="form-group">
+            <label for="registerName">Tên HKD *</label>
+            <div class="input-with-icon">
+                <i class="fas fa-store"></i>
+                <input type="text" id="registerName" placeholder="Nhập tên cửa hàng" required>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="registerPhone">Số điện thoại *</label>
+            <div class="input-with-icon">
+                <i class="fas fa-phone"></i>
+                <input type="tel" id="registerPhone" placeholder="Nhập số điện thoại" required>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="registerAddress">Địa chỉ</label>
+            <div class="input-with-icon">
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" id="registerAddress" placeholder="Nhập địa chỉ (tuỳ chọn)">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="registerPassword">Mật khẩu *</label>
+            <div class="input-with-icon">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="registerPassword" placeholder="Nhập mật khẩu (6+ ký tự)" required>
+                <button type="button" class="toggle-password" onclick="toggleRegisterPassword()">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="registerConfirmPassword">Xác nhận mật khẩu *</label>
+            <div class="input-with-icon">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="registerConfirmPassword" placeholder="Nhập lại mật khẩu" required>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-success">
+                <i class="fas fa-user-plus"></i> Đăng ký ngay
+            </button>
+            <button type="button" class="btn-secondary" onclick="showLoginForm()">
+                <i class="fas fa-sign-in-alt"></i> Quay lại đăng nhập
+            </button>
+        </div>
+    </form>
+    
+    <div class="register-info mt-3">
+        <p class="small text-muted">
+            <i class="fas fa-info-circle"></i> 
+            Sau khi đăng ký, bạn có thể đăng nhập ngay bằng SĐT và mật khẩu đã đăng ký.
+        </p>
+    </div>
+</div>
+
+
+    <!-- Thêm phần scripts ở cuối body -->
+<!-- Thêm phần scripts ở cuối body -->
+<script src="js/firebase-config.js"></script>
+<script src="js/indexedDB.js"></script>
+<script src="js/sync-manager.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/init.js"></script>
+<script src="js/init.js"></script>
+
+    <script>
+        // Xác định loại đăng nhập từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let loginType = urlParams.get('type') || 'admin';
+        
+        function initLoginPage() {
+            switchLoginType(loginType);
+            
+            // Xử lý form đăng nhập
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleLogin();
+            });
+        }
+        
+        function switchLoginType(type) {
+            loginType = type;
+            
+            // Cập nhật UI
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.querySelector(`.type-btn:nth-child(${type === 'admin' ? 1 : 2})`).classList.add('active');
+            
+            // Cập nhật tiêu đề
+            document.getElementById('loginTitle').textContent = 
+                type === 'admin' ? 'Đăng nhập Admin' : 'Đăng nhập HKD';
+            
+            // Hiển thị/ẩn trường HKD
+            document.getElementById('phoneGroup').style.display = 'block';
+            document.getElementById('hkdNameGroup').style.display = type === 'hkd' ? 'block' : 'none';
+            
+            // Cập nhật thông tin mặc định
+            document.getElementById('defaultAdminInfo').style.display = 
+                type === 'admin' ? 'block' : 'none';
+            document.getElementById('defaultHKDInfo').style.display = 
+                type === 'hkd' ? 'block' : 'none';
+        }
+        
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+        
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.toggle-password i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.className = 'fas fa-eye';
+            }
+        }
+        
+        async function handleLogin() {
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            //const hkdName = loginType === 'hkd' ? document.getElementById('hkdName').value : '';
+            
+            try {
+                if (loginType === 'admin') {
+                    // Đăng nhập admin
+                    const success = await authenticateAdmin(phone, password);
+                    if (success) {
+                        localStorage.setItem('lastLogin', 'admin');
+                        window.location.href = 'admin.html';
+                    }
+                } else {
+                    // Đăng nhập HKD
+                    const success = await authenticateHKD(phone, password);
+                    if (success) {
+                        localStorage.setItem('lastLogin', 'hkd');
+                        window.location.href = 'hkd.html';
+                    }
+                }
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+        
+        function showError(message) {
+            // Tạo thông báo lỗi
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // Thêm vào form
+            const form = document.getElementById('loginForm');
+            const existingError = form.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            form.prepend(errorDiv);
+        }
+// Switch giữa login và register
+function showRegisterForm() {
+    console.log('📝 Hiển thị form đăng ký');
+    
+    // Ẩn form đăng nhập
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerLink').style.display = 'none';
+    document.getElementById('defaultAdminInfo').style.display = 'none';
+    document.getElementById('defaultHKDInfo').style.display = 'none';
+    
+    // Hiển thị form đăng ký
+    document.getElementById('registerSection').style.display = 'block';
+    setTimeout(() => {
+        document.getElementById('registerSection').classList.remove('hidden');
+    }, 10);
+    
+    // Auto switch to HKD type
+    switchLoginType('hkd');
+}
+
+function showLoginForm() {
+    console.log('🔐 Hiển thị form đăng nhập');
+    
+    // Ẩn form đăng ký
+    document.getElementById('registerSection').classList.add('hidden');
+    setTimeout(() => {
+        document.getElementById('registerSection').style.display = 'none';
+    }, 300);
+    
+    // Hiển thị form đăng nhập
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('registerLink').style.display = 'block';
+    document.getElementById('defaultAdminInfo').style.display = 'block';
+    
+    // Reset form đăng ký
+    document.getElementById('registerForm').reset();
+}
+
+// Toggle password cho register
+function toggleRegisterPassword() {
+    const passwordInput = document.getElementById('registerPassword');
+    const toggleBtn = document.querySelector('.toggle-password i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.classList.remove('fa-eye');
+        toggleBtn.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.classList.remove('fa-eye-slash');
+        toggleBtn.classList.add('fa-eye');
+    }
+}
+
+// Xử lý đăng ký HKD
+async function handleRegister(event) {
+    event.preventDefault();
+    
+    // Lấy dữ liệu từ form
+    const name = document.getElementById('registerName').value.trim();
+    const phone = document.getElementById('registerPhone').value.trim();
+    const address = document.getElementById('registerAddress').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+    
+    console.log('📝 Đăng ký HKD với:', { name, phone, address, passwordLength: password.length });
+    
+    // Validation
+    if (!name || !phone || !password) {
+        showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showToast('Mật khẩu phải có ít nhất 6 ký tự', 'error');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        showToast('Mật khẩu xác nhận không khớp', 'error');
+        return;
+    }
+    
+    if (!Utils.validatePhone(phone)) {
+        showToast('Số điện thoại không hợp lệ', 'error');
+        return;
+    }
+    
+    try {
+        // Hiển thị loading
+        showLoading('Đang đăng ký tài khoản...');
+        
+        // Khởi tạo Firebase
+        await initFirebase();
+        
+        // Kiểm tra số điện thoại đã tồn tại chưa
+        const isDuplicate = await checkDuplicatePhone(phone);
+        if (isDuplicate) {
+            throw new Error('Số điện thoại đã được đăng ký');
+        }
+        
+        // Tạo ID cho HKD
+        const hkdId = Utils.generateId();
+        
+        // Dữ liệu HKD
+        const hkdData = {
+            id: hkdId,
+            name: name,
+            phone: phone,
+            address: address,
+            password: password,
+            role: 'hkd',
+            createdAt: new Date().toISOString(),
+            lastUpdated: new Date().toISOString(),
+            _synced: true,
+            _autoRegistered: true // Đánh dấu đăng ký tự động
+        };
+        
+        // 1. Lưu lên Firebase với cấu trúc chuẩn
+        const firebaseData = {
+            info: {
+                name: name,
+                phone: phone,
+                address: address,
+                password: password, // QUAN TRỌNG: lưu mật khẩu
+                role: 'hkd',
+                createdAt: hkdData.createdAt,
+                lastUpdated: hkdData.lastUpdated,
+                _syncedAt: new Date().toISOString(),
+                _autoRegistered: true
+            },
+            categories: {}, // Danh mục rỗng ban đầu
+            invoices: {}    // Hóa đơn rỗng ban đầu
+        };
+        
+        const hkdRef = firebase.database().ref(`hkds/${hkdId}`);
+        await hkdRef.set(firebaseData);
+        
+        console.log('✅ Đã tạo HKD trên Firebase:', hkdId);
+        
+        // 2. Lưu vào IndexedDB local (để có thể login offline sau này)
+        try {
+            // Khởi tạo IndexedDB
+            await initIndexedDB();
+            
+            // Lưu HKD vào IndexedDB
+            await updateInStore(STORES.HKDS, hkdData);
+            
+            console.log('✅ Đã lưu HKD vào IndexedDB local');
+        } catch (dbError) {
+            console.warn('⚠️ Không thể lưu vào IndexedDB:', dbError);
+            // Không block nếu lỗi IndexedDB
+        }
+        
+        // 3. Đăng nhập tự động
+        console.log('🔑 Tự động đăng nhập sau khi đăng ký...');
+        
+        currentUser = {
+            id: hkdId,
+            phone: phone,
+            name: name,
+            address: address,
+            role: 'hkd',
+            loginTime: new Date().toISOString()
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        // 4. Chuyển đến trang HKD
+        showToast('Đăng ký thành công! Đang chuyển đến trang HKD...', 'success');
+        
+        setTimeout(() => {
+            window.location.href = 'hkd.html';
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ Lỗi đăng ký:', error);
+        showToast(`Lỗi đăng ký: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Kiểm tra số điện thoại trùng
+async function checkDuplicatePhone(phone) {
+    try {
+        await initFirebase();
+        
+        // Lấy tất cả HKD từ Firebase
+        const hkdsRef = firebase.database().ref('hkds');
+        const snapshot = await hkdsRef.once('value');
+        const hkdsData = snapshot.val();
+        
+        if (!hkdsData) return false;
+        
+        // Duyệt qua tất cả HKD
+        for (const [hkdId, hkdData] of Object.entries(hkdsData)) {
+            if (hkdData.info && hkdData.info.phone === phone) {
+                return true; // Đã tồn tại
+            }
+        }
+        
+        return false; // Chưa tồn tại
+        
+    } catch (error) {
+        console.error('❌ Lỗi kiểm tra trùng số điện thoại:', error);
+        throw error;
+    }
+}
+
+// Helper functions (thêm vào nếu chưa có)
+function showToast(message, type = 'info') {
+    // Tạo toast element đơn giản
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Hiệu ứng
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+function showLoading(message) {
+    let loading = document.getElementById('loadingOverlay');
+    if (!loading) {
+        loading = document.createElement('div');
+        loading.id = 'loadingOverlay';
+        loading.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <div class="loading-text">${message}</div>
+            </div>
+        `;
+        document.body.appendChild(loading);
+    } else {
+        loading.querySelector('.loading-text').textContent = message;
+    }
+    loading.classList.add('show');
+}
+
+function hideLoading() {
+    const loading = document.getElementById('loadingOverlay');
+    if (loading) {
+        loading.classList.remove('show');
+        setTimeout(() => loading.remove(), 300);
+    }
+}
+
+// Switch giữa login và register
+function showRegisterForm() {
+    console.log('📝 Hiển thị form đăng ký');
+    
+    // Ẩn form đăng nhập
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerLink').style.display = 'none';
+    document.getElementById('defaultAdminInfo').style.display = 'none';
+    document.getElementById('defaultHKDInfo').style.display = 'none';
+    
+    // Hiển thị form đăng ký
+    document.getElementById('registerSection').style.display = 'block';
+    setTimeout(() => {
+        document.getElementById('registerSection').classList.remove('hidden');
+    }, 10);
+    
+    // Auto switch to HKD type
+    switchLoginType('hkd');
+}
+
+function showLoginForm() {
+    console.log('🔐 Hiển thị form đăng nhập');
+    
+    // Ẩn form đăng ký
+    document.getElementById('registerSection').classList.add('hidden');
+    setTimeout(() => {
+        document.getElementById('registerSection').style.display = 'none';
+    }, 300);
+    
+    // Hiển thị form đăng nhập
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('registerLink').style.display = 'block';
+    document.getElementById('defaultAdminInfo').style.display = 'block';
+    
+    // Reset form đăng ký
+    document.getElementById('registerForm').reset();
+}
+
+// Toggle password cho register
+function toggleRegisterPassword() {
+    const passwordInput = document.getElementById('registerPassword');
+    const toggleBtn = document.querySelector('.toggle-password i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.classList.remove('fa-eye');
+        toggleBtn.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.classList.remove('fa-eye-slash');
+        toggleBtn.classList.add('fa-eye');
+    }
+}
+
+async function handleRegister(event) {
+    event.preventDefault();
+    
+    // 1. Lấy dữ liệu từ form
+    const name = document.getElementById('registerName').value.trim();
+    const phone = document.getElementById('registerPhone').value.trim();
+    const address = document.getElementById('registerAddress').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+    
+    console.log('📝 Bắt đầu đăng ký HKD mới:', { name, phone });
+    
+    // 2. Validation cơ bản
+    if (!name || !phone || !password) {
+        showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showToast('Mật khẩu phải có ít nhất 6 ký tự', 'error');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        showToast('Mật khẩu xác nhận không khớp', 'error');
+        return;
+    }
+    
+    if (typeof Utils !== 'undefined' && !Utils.validatePhone(phone)) {
+        showToast('Số điện thoại không hợp lệ', 'error');
+        return;
+    }
+    
+    try {
+        showLoading('Đang xử lý đăng ký...');
+        
+        // 3. Khởi tạo Firebase và DB
+        await initFirebase();
+        await initIndexedDB();
+        
+        // 4. Kiểm tra trùng lặp trên Firebase
+        const isDuplicate = await checkDuplicatePhone(phone);
+        if (isDuplicate) {
+            throw new Error('Số điện thoại này đã được đăng ký tài khoản');
+        }
+
+        // =========================================================
+        // BƯỚC QUAN TRỌNG: DỌN DẸP DỮ LIỆU CŨ TRƯỚC KHI TẠO MỚI
+        // Tránh lỗi Admin import không hiển thị hàng hóa do trùng DB local
+        // =========================================================
+        console.log('🧹 Đang dọn dẹp dữ liệu local cũ...');
+        const db = await getDB();
+        const storesToClear = [STORES.PRODUCTS, STORES.CATEGORIES, STORES.INVOICES, STORES.SYNC_QUEUE];
+        
+        for (const storeName of storesToClear) {
+            const transaction = db.transaction(storeName, 'readwrite');
+            const store = transaction.objectStore(storeName);
+            await new Promise((resolve) => {
+                const req = store.clear();
+                req.onsuccess = () => resolve();
+                req.onerror = () => resolve(); // Vẫn tiếp tục nếu lỗi
+            });
+        }
+        
+        // 5. Khởi tạo ID và cấu trúc dữ liệu
+        const hkdId = phone; // Sử dụng phone làm ID để dễ quản lý hoặc dùng Utils.generateId()
+        const timestamp = new Date().toISOString();
+        
+        const hkdDataForLocal = {
+            id: hkdId,
+            name: name,
+            phone: phone,
+            address: address,
+            password: password,
+            role: 'hkd',
+            createdAt: timestamp,
+            lastUpdated: timestamp,
+            _synced: true
+        };
+        
+        const firebaseData = {
+            info: {
+                id: hkdId,
+                name: name,
+                phone: phone,
+                address: address,
+                password: password,
+                role: 'hkd',
+                createdAt: timestamp,
+                lastUpdated: timestamp,
+                _autoRegistered: true
+            },
+            categories: {}, 
+            products: {},
+            invoices: {}
+        };
+        
+        // 6. Lưu lên Firebase
+        await firebase.database().ref(`hkds/${hkdId}`).set(firebaseData);
+        console.log('✅ Đã lưu thông tin lên Firebase');
+        
+        // 7. Lưu vào IndexedDB local
+        await updateInStore(STORES.HKDS, hkdDataForLocal);
+        console.log('✅ Đã khởi tạo IndexedDB sạch cho HKD mới');
+        
+        // 8. Thiết lập trạng thái đăng nhập
+        currentUser = {
+            id: hkdId,
+            phone: phone,
+            name: name,
+            role: 'hkd',
+            loginTime: timestamp
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        // 9. Thông báo và chuyển hướng
+        showToast('Đăng ký thành công! Đang khởi tạo không gian làm việc...', 'success');
+        
+        // Chạy nền việc tải dữ liệu mẫu nếu cần ở đây
+        
+        setTimeout(() => {
+            window.location.href = 'hkd.html';
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ Lỗi đăng ký:', error);
+        showToast(error.message, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+// Kiểm tra số điện thoại trùng
+async function checkDuplicatePhone(phone) {
+    try {
+        await initFirebase();
+        
+        // Lấy tất cả HKD từ Firebase
+        const hkdsRef = firebase.database().ref('hkds');
+        const snapshot = await hkdsRef.once('value');
+        const hkdsData = snapshot.val();
+        
+        if (!hkdsData) return false;
+        
+        // Duyệt qua tất cả HKD
+        for (const [hkdId, hkdData] of Object.entries(hkdsData)) {
+            if (hkdData.info && hkdData.info.phone === phone) {
+                return true; // Đã tồn tại
+            }
+        }
+        
+        return false; // Chưa tồn tại
+        
+    } catch (error) {
+        console.error('❌ Lỗi kiểm tra trùng số điện thoại:', error);
+        throw error;
+    }
+}
+
+// Helper functions (thêm vào nếu chưa có)
+function showToast(message, type = 'info') {
+    // Tạo toast element đơn giản
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Hiệu ứng
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+function showLoading(message) {
+    let loading = document.getElementById('loadingOverlay');
+    if (!loading) {
+        loading = document.createElement('div');
+        loading.id = 'loadingOverlay';
+        loading.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <div class="loading-text">${message}</div>
+            </div>
+        `;
+        document.body.appendChild(loading);
+    } else {
+        loading.querySelector('.loading-text').textContent = message;
+    }
+    loading.classList.add('show');
+}
+
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * Hide loading overlay
+ * 
+ * @param {HTMLElement} loading - Loading overlay element
+ */
+/*******  fe15a1b5-660a-4f90-891f-ddfbf77946a6  *******/
+function hideLoading() {
+    const loading = document.getElementById('loadingOverlay');
+    if (loading) {
+        loading.classList.remove('show');
+        setTimeout(() => loading.remove(), 300);
+    }
+}
+
+// Thêm event listener khi page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Login form
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+    
+    // Register form
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', handleRegister);
+    }
+    
+    // Auto focus khi switch to register
+    window.showRegisterForm = showRegisterForm;
+    window.showLoginForm = showLoginForm;
+    window.toggleRegisterPassword = toggleRegisterPassword;
+});
+        // Khởi tạo trang
+        window.onload = initLoginPage;
+    </script>
+</body>
+</html>

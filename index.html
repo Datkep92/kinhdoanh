@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống bán hàng</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-card">
+            <div class="logo">
+                <i class="fas fa-store-alt"></i>
+                <h1>Hệ thống bán hàng</h1>
+            </div>
+            
+            <div class="welcome-text">
+                <p>Chào mừng bạn đến với hệ thống quản lý bán hàng tích hợp Firebase</p>
+            </div>
+            
+            <div class="login-options">
+                <div class="option-card" onclick="goToAdmin()">
+                    <div class="option-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="option-content">
+                        <h3>Đăng nhập Admin</h3>
+                        <p>Quản lý hệ thống, HKD và hóa đơn</p>
+                    </div>
+                    <div class="option-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="option-card" onclick="goToHKD()">
+                    <div class="option-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="option-content">
+                        <h3>Đăng nhập HKD</h3>
+                        <p>Bán hàng và quản lý đơn hàng</p>
+                    </div>
+                    <div class="option-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="features">
+                <h3>Tính năng nổi bật:</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Đồng bộ dữ liệu thời gian thực</li>
+                    <li><i class="fas fa-check-circle"></i> Hoạt động offline với IndexedDB</li>
+                    <li><i class="fas fa-check-circle"></i> Quản lý nhiều HKD</li>
+                    <li><i class="fas fa-check-circle"></i> Nhập hàng hóa từ Excel</li>
+                    <li><i class="fas fa-check-circle"></i> Bán hàng nhanh trên mobile</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goToAdmin() {
+            window.location.href = "login.html?type=admin";
+        }
+        
+        function goToHKD() {
+            window.location.href = "login.html?type=hkd";
+        }
+        
+        // Lưu trạng thái đăng nhập trước đó
+        window.onload = function() {
+            const lastLogin = localStorage.getItem('lastLogin');
+            if (lastLogin === 'admin') {
+                document.querySelector('.option-card:nth-child(1)').classList.add('highlight');
+            } else if (lastLogin === 'hkd') {
+                document.querySelector('.option-card:nth-child(2)').classList.add('highlight');
+            }
+        };
+    </script>
+</body>
+</html>

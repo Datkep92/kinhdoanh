@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bán hàng - HKD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/hkd.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="hkd-header">
+        <div class="header-left">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="hkd-info">
+                <h2 id="hkdNameMobile">HKD Name</h2>
+                <p>Chế độ bán hàng</p>
+            </div>
+        </div>
+        <div id="syncStatus" class="sync-status offline">
+</div>
+        <div class="header-right">
+            <div class="cart-badge" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart" style="font-size: 20px; color: #4a6ee0;"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-store"></i> <span id="hkdName">HKD Name</span></h3>
+        </div>
+        <div class="sidebar-menu" id="sidebarMenu">
+            <!-- Menu items will be loaded by JavaScript -->
+        </div>
+        <!-- Thêm vào sidebar hoặc modal -->
+
+    </div>
+    
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Giỏ hàng</h3>
+            <button class="close-cart" onclick="toggleCart()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be loaded here -->
+        </div>
+        <div class="cart-summary">
+            <div class="customer-input">
+                <input type="text" id="customerName" placeholder="Tên khách hàng (để trống nếu khách lẻ)">
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Tạm tính:</span>
+                <span class="summary-value" id="cartSubtotal">0₫</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Giảm giá:</span>
+                <span class="summary-value">0₫</span>
+            </div>
+            <div class="summary-row total-row">
+                <span class="summary-label">Tổng cộng:</span>
+                <span class="summary-value" id="cartTotal">0₫</span>
+            </div>
+            <div class="cart-actions">
+                <button class="btn-clear" id="clearCart">Xóa giỏ</button>
+                <button class="btn-checkout" id="createInvoice">Xuất hàng</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="hkd-container">
+        <!-- Categories -->
+        <div class="categories">
+            <div class="category-list" id="categoryList">
+                <!-- Categories will be loaded by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Products Grid -->
+        <div class="products-grid" id="productGrid">
+            <!-- Products will be loaded by JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Fixed Footer -->
+    <footer class="hkd-footer">
+        <div class="footer-left">
+            <div class="cart-preview" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <div class="cart-info">
+                    <h4>Giỏ hàng</h4>
+                    <p id="cartTotalMobile">0₫ • 0 sản phẩm</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-right">
+            <button class="footer-btn btn-clear-foo1ter" id="clearCartFooter">
+    <i class="fas fa-trash-alt"></i>
+    <span class="footer-btn-text"></span>
+</button>
+<button class="footer-btn btn-checkout-foot1er" id="createInvoiceFooter">
+    <i class="fas fa-receipt"></i>
+    <span class="footer-btn-text"></span>
+</button>
+            
+        </div>
+    </footer>
+    
+    <!-- Modals -->
+    
+    <!-- History Modal -->
+    <div class="modal fade" id="historyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lịch sử hóa đơn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="historyContent">
+                        <!-- History will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Revenue Modal -->
+    <div class="modal fade" id="revenueModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Báo cáo doanh thu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="revenueContent">
+                        <!-- Revenue report will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Products Modal -->
+    <div class="modal fade" id="productsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Danh sách sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="productsContent">
+                        <!-- Products list will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Invoice Receipt Modal -->
+    <div class="modal fade" id="invoiceReceiptModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Hóa đơn bán hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="receiptContent">
+                        <!-- Receipt will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="printReceipt">
+                        <i class="fas fa-print"></i> In hóa đơn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal thêm danh mục -->
+<div class="modal fade" id="hkdCategoryModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm danh mục mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tên danh mục *</label>
+                    <input type="text" class="form-control" id="hkdCategoryName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mô tả (tuỳ chọn)</label>
+                    <textarea class="form-control" id="hkdCategoryDescription" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveHKDCategory()">Lưu danh mục</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm hàng hóa -->
+<div class="modal fade" id="hkdProductModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm hàng hóa mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mã sản phẩm *</label>
+                        <input type="text" class="form-control" id="hkdProductCode" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tên sản phẩm *</label>
+                        <input type="text" class="form-control" id="hkdProductName" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Danh mục *</label>
+                        <select class="form-control" id="hkdProductCategory" required>
+                            <option value="">Chọn danh mục...</option>
+                            <!-- Load bằng JS -->
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Đơn vị</label>
+                        <input type="text" class="form-control" id="hkdProductUnit" value="cái">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Giá bán *</label>
+                        <input type="number" class="form-control" id="hkdProductPrice" min="0" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Tồn kho</label>
+                        <input type="number" class="form-control" id="hkdProductStock" min="0" value="0">
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label">Mô tả (tuỳ chọn)</label>
+                        <input type="text" class="form-control" id="hkdProductDescription">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveHKDProduct()">Lưu hàng hóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal quản lý HKD -->
+<div class="modal fade" id="hkdManagementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quản lý của tôi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Tabs -->
+                <ul class="nav nav-tabs" id="hkdManagementTabs">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#hkdCategoriesTab">
+                            <i class="fas fa-folder"></i> Danh mục
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#hkdProductsTab">
+                            <i class="fas fa-box"></i> Hàng hóa
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#hkdContactTab">
+                            <i class="fas fa-phone"></i> Liên hệ
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab content -->
+                <div class="tab-content mt-3">
+                    <!-- Tab danh mục -->
+                    <div class="tab-pane fade show active" id="hkdCategoriesTab">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Danh sách danh mục</h6>
+                            <button class="btn btn-sm btn-primary" onclick="showCategoryModal()">
+                                <i class="fas fa-plus"></i> Thêm danh mục
+                            </button>
+                        </div>
+                        <div id="hkdCategoriesList" class="row">
+                            <!-- Load bằng JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Tab hàng hóa -->
+                    <div class="tab-pane fade" id="hkdProductsTab">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Danh sách hàng hóa</h6>
+                            <button class="btn btn-sm btn-primary" onclick="showProductModal()">
+                                <i class="fas fa-plus"></i> Thêm hàng hóa
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>MSP</th>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Danh mục</th>
+                                        <th>Giá</th>
+                                        <th>Tồn kho</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hkdProductsTable">
+                                    <!-- Load bằng JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab liên hệ -->
+                    <div class="tab-pane fade" id="hkdContactTab">
+                        <div class="text-center py-5">
+                            <i class="fas fa-phone fa-3x text-primary mb-3"></i>
+                            <h5>Liên hệ hỗ trợ</h5>
+                            <p class="text-muted">Nếu cần hỗ trợ kỹ thuật hoặc có thắc mắc</p>
+                            
+                            <div class="contact-info mt-4">
+                                <a href="tel:0932155035" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-phone"></i> Gọi ngay: 0932.155.035
+                                </a>
+                                
+                                <div class="mt-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> Thời gian hỗ trợ: 8:00 - 22:00
+                                    </small>
+                                </div>
+                                
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i> Zalo: 0932.155.035
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- App scripts - THỨ TỰ RẤT QUAN TRỌNG -->
+<script src="js/firebase-config.js"></script>
+<script src="js/indexedDB.js"></script>
+<script src="js/sync-manager.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/hkd.js"></script>
+<script src="js/init.js"></script>
+
+    
+    <script>
+        // Initialize HKD page
+        document.addEventListener('DOMContentLoaded', function() {
+            initHKDPage();
+        });
+        
+        // Toggle cart sidebar
+        function toggleCart() {
+            const cartSidebar = document.getElementById('cartSidebar');
+            cartSidebar.classList.toggle('active');
+            
+            // Tạo overlay nếu chưa có
+            const overlay = document.getElementById('cartOverlay');
+            if (!overlay) {
+                const newOverlay = document.createElement('div');
+                newOverlay.id = 'cartOverlay';
+                newOverlay.className = 'sidebar-overlay';
+                newOverlay.onclick = toggleCart;
+                document.body.appendChild(newOverlay);
+                setTimeout(() => newOverlay.classList.add('active'), 10);
+            } else {
+                overlay.classList.toggle('active');
+            }
+        }
+        
+        // Update cart footer
+        function updateCartFooter() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            document.getElementById('cartTotalMobile').textContent = 
+                `${Utils.formatCurrency(totalAmount)} • ${totalItems} sản phẩm`;
+        }
+        
+        // Thêm các hàm global
+        window.toggleCart = toggleCart;
+        document.addEventListener('DOMContentLoaded', function() {
+    // Chỉ khởi tạo sync manager nếu người dùng đã đăng nhập
+    const user = getCurrentUser();
+    if (user) {
+        initSyncManager();
+    }
+});
+        // Override cart display update để cập nhật footer
+        const originalUpdateCartDisplay = updateCartDisplay;
+        updateCartDisplay = function() {
+            originalUpdateCartDisplay();
+            updateCartFooter();
+        };
+    </script>
+</body>
+</html>
