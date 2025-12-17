@@ -468,10 +468,6 @@ function updateCategoryList() {
     `).join('');
 }
 
-/**
- * Hiển thị sản phẩm với hỗ trợ ảnh
- * @param {string} category - Danh mục cần hiển thị
- */
 function displayProducts(category = 'All') {
     const productGrid = document.getElementById('productGrid');
     if (!productGrid) return;
@@ -504,12 +500,12 @@ function displayProducts(category = 'All') {
         return `
             <div class="product-card" data-product-id="${product.id}">
                 
-                <!-- IMAGE CONTAINER - Thay đổi quan trọng -->
+                <!-- IMAGE CONTAINER với loader mặc định -->
                 <div class="product-image" data-product-id="${product.id}">
-                    <!-- Ảnh sẽ được load async -->
                     <div class="image-loader">
                         <i class="fas fa-image"></i>
                     </div>
+                    <!-- Ảnh sẽ được load async -->
                 </div>
 
                 <!-- INFO -->
@@ -554,7 +550,7 @@ function displayProducts(category = 'All') {
         filteredProducts.forEach(product => {
             loadAndDisplayProductImage(product.id);
         });
-    }, 50); // Giảm timeout xuống 50ms để load nhanh hơn
+    }, 100);
 }
 /**
  * Tải và hiển thị ảnh sản phẩm (OPTIMIZED với CSS mới)
@@ -2393,16 +2389,16 @@ function triggerImageUpdate(productId) {
  * @param {string} productId - ID sản phẩm
  */
 async function reloadProductImage(productId) {
-    // Xóa cache nếu cần
     const productCard = document.querySelector(`.product-card[data-product-id="${productId}"]`);
-    if (productCard) {
-        const imageContainer = productCard.querySelector('.product-image');
-        if (imageContainer) {
-            imageContainer.innerHTML = '<div class="image-loader"><i class="fas fa-image"></i></div>';
-            imageContainer.classList.remove('has-image', 'loaded');
-            productCard.classList.remove('has-image');
-        }
-    }
+    if (!productCard) return;
+    
+    const imageContainer = productCard.querySelector('.product-image');
+    if (!imageContainer) return;
+    
+    // Reset container
+    imageContainer.innerHTML = '<div class="image-loader"><i class="fas fa-image"></i></div>';
+    imageContainer.classList.remove('has-image');
+    productCard.classList.remove('has-image');
     
     // Load lại ảnh
     await loadAndDisplayProductImage(productId);

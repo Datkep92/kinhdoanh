@@ -1,6 +1,6 @@
 // IndexedDB Configuration
 const DB_NAME = 'BanHangDB';
-const DB_VERSION = 7; // Tăng lên 4 để cập nhật Schema
+const DB_VERSION = 8    ; // Tăng lên 4 để cập nhật Schema
 // Store names
 const STORES = {
     HKDS: 'hkds',
@@ -8,7 +8,8 @@ const STORES = {
     INVOICES: 'invoices',
     CATEGORIES: 'categories',
     SYNC_QUEUE: 'syncQueue',
-    LAST_SYNC: 'lastSync'
+    LAST_SYNC: 'lastSync',
+    PRODUCT_IMAGES: 'productImages' // Thêm store mới
 };
 
 // Khởi tạo IndexedDB
@@ -28,35 +29,33 @@ function initIndexedDB() {
             const db = event.target.result;
             const transaction = event.currentTarget.transaction;
             
-            // 1. HKDS
+            // 1. HKDS (giữ nguyên)
             if (!db.objectStoreNames.contains(STORES.HKDS)) {
                 const hkdStore = db.createObjectStore(STORES.HKDS, { keyPath: 'id' });
                 hkdStore.createIndex('phone', 'phone', { unique: true });
                 hkdStore.createIndex('name', 'name', { unique: false });
             }
             
-            // 2. PRODUCTS (SỬA LOGIC UNIQUE TẠI ĐÂY)
+            // 2. PRODUCTS (giữ nguyên)
             let productStore;
             if (!db.objectStoreNames.contains(STORES.PRODUCTS)) {
                 productStore = db.createObjectStore(STORES.PRODUCTS, { keyPath: 'id' });
             } else {
                 productStore = transaction.objectStore(STORES.PRODUCTS);
-                // Xóa index cũ bị lỗi unique nếu có
                 if (productStore.indexNames.contains('msp_hkd')) {
                     productStore.deleteIndex('msp_hkd');
                 }
             }
             
-            // Tạo lại index cho product
+            // Tạo lại index cho product (giữ nguyên)
             if (!productStore.indexNames.contains('hkdId')) productStore.createIndex('hkdId', 'hkdId', { unique: false });
             if (!productStore.indexNames.contains('categoryId')) productStore.createIndex('categoryId', 'categoryId', { unique: false });
             if (!productStore.indexNames.contains('msp')) productStore.createIndex('msp', 'msp', { unique: false });
-            // Index kết hợp (hkdId + msp) - Đặt unique: false để cho phép ghi đè mượt mà
             if (!productStore.indexNames.contains('hkd_msp')) {
                 productStore.createIndex('hkd_msp', ['hkdId', 'msp'], { unique: false });
             }
 
-            // 3. INVOICES
+            // 3. INVOICES (giữ nguyên)
             if (!db.objectStoreNames.contains(STORES.INVOICES)) {
                 const invoiceStore = db.createObjectStore(STORES.INVOICES, { keyPath: 'id' });
                 invoiceStore.createIndex('hkdId', 'hkdId', { unique: false });
@@ -64,28 +63,35 @@ function initIndexedDB() {
                 invoiceStore.createIndex('status', 'status', { unique: false });
             }
             
-            // 4. CATEGORIES
+            // 4. CATEGORIES (giữ nguyên)
             if (!db.objectStoreNames.contains(STORES.CATEGORIES)) {
                 const categoryStore = db.createObjectStore(STORES.CATEGORIES, { keyPath: 'id' });
                 categoryStore.createIndex('hkdId', 'hkdId', { unique: false });
                 categoryStore.createIndex('name', 'name', { unique: false });
             }
             
-            // 5. SYNC QUEUE
+            // 5. SYNC QUEUE (giữ nguyên)
             if (!db.objectStoreNames.contains(STORES.SYNC_QUEUE)) {
                 const syncStore = db.createObjectStore(STORES.SYNC_QUEUE, { keyPath: 'id', autoIncrement: true });
                 syncStore.createIndex('type', 'type', { unique: false });
                 syncStore.createIndex('status', 'status', { unique: false });
             }
             
-            // 6. LAST SYNC
+            // 6. LAST SYNC (giữ nguyên)
             if (!db.objectStoreNames.contains(STORES.LAST_SYNC)) {
                 db.createObjectStore(STORES.LAST_SYNC, { keyPath: 'storeName' });
+            }
+            
+            // 7. PRODUCT IMAGES (THÊM MỚI) - QUAN TRỌNG
+            if (!db.objectStoreNames.contains(STORES.PRODUCT_IMAGES)) {
+                const imageStore = db.createObjectStore(STORES.PRODUCT_IMAGES, { keyPath: 'productId' }); // productId làm key
+                imageStore.createIndex('hkdId', 'hkdId', { unique: false });
+                imageStore.createIndex('productId', 'productId', { unique: true }); // Mỗi sản phẩm chỉ có 1 ảnh
+                imageStore.createIndex('updatedAt', 'updatedAt', { unique: false });
             }
         };
     });
 }
-
 // Lấy database instance
 async function getDB() {
     return await initIndexedDB();
@@ -344,29 +350,217 @@ async function clearHKDData(hkdId) {
 function isIndexedDBSupported() {
     return 'indexedDB' in window;
 }
+// ========== PRODUCT IMAGES OPERATIONS ==========
 
+/**
+ * Lưu/update ảnh sản phẩm
+ * @param {Object} imageData - Dữ liệu ảnh
+ * @returns {Promise<string>} productId
+ */
+async function saveProductImage(imageData) {
+    const db = await getDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORES.PRODUCT_IMAGES], 'readwrite');
+        const store = transaction.objectStore(STORES.PRODUCT_IMAGES);
+        
+        // Luôn dùng put để ghi đè nếu đã tồn tại
+        const request = store.put(imageData);
+        
+        request.onsuccess = () => {
+            console.log(`✅ Đã lưu ảnh cho sản phẩm ${imageData.productId}`);
+            resolve(imageData.productId);
+        };
+        
+        request.onerror = (e) => {
+            console.error(`❌ Lỗi lưu ảnh sản phẩm ${imageData.productId}:`, e.target.error);
+            reject(e.target.error);
+        };
+    });
+}
+
+/**
+ * Lấy ảnh của sản phẩm
+ * @param {string} productId - ID sản phẩm
+ * @returns {Promise<Object|null>} Dữ liệu ảnh
+ */
+async function getProductImage(productId) {
+    const db = await getDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORES.PRODUCT_IMAGES], 'readonly');
+        const store = transaction.objectStore(STORES.PRODUCT_IMAGES);
+        const request = store.get(productId);
+        
+        request.onsuccess = () => {
+            resolve(request.result || null);
+        };
+        
+        request.onerror = () => {
+            console.error(`❌ Lỗi lấy ảnh sản phẩm ${productId}:`, request.error);
+            reject(request.error);
+        };
+    });
+}
+
+/**
+ * Lấy tất cả ảnh của HKD
+ * @param {string} hkdId - ID HKD
+ * @returns {Promise<Array>} Danh sách ảnh
+ */
+async function getProductImagesByHKD(hkdId) {
+    const db = await getDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORES.PRODUCT_IMAGES], 'readonly');
+        const store = transaction.objectStore(STORES.PRODUCT_IMAGES);
+        const index = store.index('hkdId');
+        const request = index.getAll(hkdId);
+        
+        request.onsuccess = () => {
+            resolve(request.result || []);
+        };
+        
+        request.onerror = () => {
+            console.error(`❌ Lỗi lấy ảnh theo HKD ${hkdId}:`, request.error);
+            reject(request.error);
+        };
+    });
+}
+
+/**
+ * Xóa ảnh sản phẩm
+ * @param {string} productId - ID sản phẩm
+ * @returns {Promise<boolean>}
+ */
+async function deleteProductImage(productId) {
+    const db = await getDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORES.PRODUCT_IMAGES], 'readwrite');
+        const store = transaction.objectStore(STORES.PRODUCT_IMAGES);
+        const request = store.delete(productId);
+        
+        request.onsuccess = () => {
+            console.log(`✅ Đã xóa ảnh sản phẩm ${productId}`);
+            resolve(true);
+        };
+        
+        request.onerror = () => {
+            console.error(`❌ Lỗi xóa ảnh sản phẩm ${productId}:`, request.error);
+            reject(request.error);
+        };
+    });
+}
+
+/**
+ * Lấy số lượng ảnh theo HKD
+ * @param {string} hkdId - ID HKD
+ * @returns {Promise<number>} Số lượng ảnh
+ */
+async function getProductImageCount(hkdId) {
+    const images = await getProductImagesByHKD(hkdId);
+    return images.length;
+}
+
+/**
+ * Kiểm tra sản phẩm có ảnh hay không
+ * @param {string} productId - ID sản phẩm
+ * @returns {Promise<boolean>}
+ */
+async function hasProductImage(productId) {
+    const image = await getProductImage(productId);
+    return !!image;
+}
+
+// Product Image Schema
+const PRODUCT_IMAGE_SCHEMA = {
+    productId: '',        // ID sản phẩm (key) - REQUIRED
+    hkdId: '',            // ID HKD - REQUIRED
+    imageData: '',        // Base64 ảnh đã nén (120x120) - REQUIRED
+    thumbnail: '',        // Base64 thumbnail nhỏ hơn (60x60) - OPTIONAL
+    originalData: '',     // Base64 ảnh gốc (đã crop nhưng chưa nén) - OPTIONAL
+    type: 'upload',       // 'upload' | 'camera' | 'url'
+    source: '',           // Tên file hoặc URL gốc
+    format: 'webp',       // 'webp' | 'jpeg' | 'png'
+    size: 0,              // Kích thước ảnh gốc (bytes)
+    compressedSize: 0,    // Kích thước sau nén (bytes)
+    width: 120,           // Chiều rộng
+    height: 120,          // Chiều cao
+    createdAt: '',        // ISO string
+    updatedAt: '',        // ISO string
+    version: 1            // Version schema
+};
+
+// Helper để tạo object ảnh chuẩn
+function createProductImageObject(productId, hkdId, imageData, options = {}) {
+    const timestamp = new Date().toISOString();
+    
+    return {
+        productId: productId,
+        hkdId: hkdId,
+        imageData: imageData,
+        thumbnail: options.thumbnail || '',
+        originalData: options.originalData || '',
+        type: options.type || 'upload',
+        source: options.source || '',
+        format: options.format || 'webp',
+        size: options.size || 0,
+        compressedSize: options.compressedSize || 0,
+        width: options.width || 120,
+        height: options.height || 120,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        version: 1
+    };
+}
 // Xuất các hàm
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         STORES,
+        PRODUCT_IMAGE_SCHEMA,
+        createProductImageObject,
         initIndexedDB,
         getDB,
+        
+        // CRUD chung
+        addToStore,
+        updateInStore,
+        getFromStore,
+        getAllFromStore,
+        deleteFromStore,
+        
+        // HKD
         saveHKD,
         getHKD,
         getHKDByPhone,
         getAllHKDs,
+        
+        // Product
         saveProduct,
         getProductsByHKD,
         getProductsByCategory,
+        
+        // Invoice
         saveInvoice,
         getInvoicesByHKD,
+        
+        // Category
         saveCategory,
         getCategoriesByHKD,
+        
+        // Sync
         addToSyncQueue,
         getPendingSyncItems,
         updateSyncItemStatus,
         getLastSyncTime,
         updateLastSyncTime,
+        
+        // Product Images (NEW)
+        saveProductImage,
+        getProductImage,
+        getProductImagesByHKD,
+        deleteProductImage,
+        getProductImageCount,
+        hasProductImage,
+        
+        // Utility
         clearHKDData,
         isIndexedDBSupported
     };
