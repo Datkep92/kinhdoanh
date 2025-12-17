@@ -6,8 +6,10 @@
     <title>Bán hàng - HKD</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css1">
     <link rel="stylesheet" href="css/hkd.css">
+    <link rel="stylesheet" href="css/product-edit.css">
+
 </head>
 <body>
     <!-- Header -->
@@ -18,7 +20,6 @@
             </button>
             <div class="hkd-info">
                 <h2 id="hkdNameMobile">HKD Name</h2>
-                <p>Chế độ bán hàng</p>
             </div>
         </div>
         <div id="syncStatus" class="sync-status offline">
@@ -104,10 +105,7 @@
             </div>
         </div>
         <div class="footer-right">
-            <button class="footer-btn btn-clear-foo1ter" id="clearCartFooter">
-    <i class="fas fa-trash-alt"></i>
-    <span class="footer-btn-text"></span>
-</button>
+            
 <button class="footer-btn btn-checkout-foot1er" id="createInvoiceFooter">
     <i class="fas fa-receipt"></i>
     <span class="footer-btn-text"></span>
@@ -385,10 +383,14 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/indexedDB.js"></script>
 <script src="js/sync-manager.js"></script>
+<!-- Thêm sau sync-manager.js -->
+<script src="js/image-utils.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/hkd.js"></script>
 <script src="js/init.js"></script>
+<script src="js/product-edit.js"></script>
+
 
     
     <script>
@@ -422,7 +424,7 @@
             const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
             document.getElementById('cartTotalMobile').textContent = 
-                `${Utils.formatCurrency(totalAmount)} • ${totalItems} sản phẩm`;
+                `${Utils.formatCurrency(totalAmount)} • ${totalItems} sp`;
         }
         
         // Thêm các hàm global
